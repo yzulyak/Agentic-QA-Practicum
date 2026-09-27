@@ -1,0 +1,25 @@
+{
+  "name": "agentic-qa-practicum",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yzulyak/Agentic-QA-Practicum.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yzulyak/Agentic-QA-Practicum/issues"
+  },
+  "homepage": "https://github.com/yzulyak/Agentic-QA-Practicum#readme",
+  "dependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.63.0",
+    "dotenv": "^18.0.4"
+  }
+}
