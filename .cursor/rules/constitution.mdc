@@ -1,0 +1,63 @@
+---
+description: Always-on Playwright constitution — non-negotiables, preferences, and forbidden patterns for this repo.
+alwaysApply: true
+---
+
+Non-negotiables for every task. Details and examples: playwright-conventions.mdc (tests) and qa-orchestrator.mdc (ticket/CI workflow) — both added later.
+
+## MUST
+
+| Rule | Notes |
+| --- | --- |
+| Role-based locators | getByRole → getByLabel → getByText; getByTestId only when nothing user-facing fits |
+| Web-first assertions | expect(locator)…; never snapshot booleans (isVisible(), textContent()) |
+| storageState auth | Log in once per family in the setup project; credentials from process.env |
+| Unique, self-cleaning data | Date.now() or a factory per test; API teardown |
+| One tag per test | Exactly one of @smoke @sanity @regression @api @e2e @destructive on each test(); never on describe() |
+
+## SHOULD
+
+| Practice | Notes |
+| --- | --- |
+| Faker factories | Shared builders for names, emails, payloads — not inline magic strings |
+| Enums for repeated strings | Roles, routes, labels used in 2+ places |
+| JSDoc on POM action methods | Brief @param / return on user-facing flows in pages/ |
+| Composition over inheritance | HeaderComponent held by each page (e.g. LoginPage.header); not classic BasePage |
+
+## WON'T
+
+| Forbidden | Why |
+| --- | --- |
+| XPath | Brittle, not user-facing |
+| waitForTimeout | Guesses a duration; use web-first expect |
+| Hardcoded secrets | Use process.env; auth files are git-ignored |
+| The `any` type | Defeats TypeScript safety in fixtures and POMs |
+| Weakened assertions | No deleting, softening, or commenting out expect() to go green |
+| Healing a real bug | Triage first; drift → self-heal; product defect → bug-reporter |
+| Tags on describe | Tags belong on individual test() blocks only |
+| Inheritance (BasePage) | No LoginPage extends BasePage; compose HeaderComponent instead |
+
+## Index
+
+Skills (`.agents/skills/`) and Agents (`.cursor/agents/`): updated as each artifact is added.
+
+## Agent governance
+
+Behavioral only, not hook-enforced. Applies to every non-trivial task (new spec, heal, refactor, config, multi-file edit). Trivial = a single-line fix with obvious intent.
+
+1. **Audit** — read the ticket, the linked Confluence page, CI logs, and code relevant to the task; list what exists.
+2. **Proposal** — emit this block before editing and wait for the gate:
+
+   ```
+   ## Proposal
+   - Scope: files, flows, ticket — what will change and what will not
+   - Confidence: 1–10
+   - Rationale: why this approach; evidence consulted
+   - Unknowns: gaps, assumptions, or "none"
+   ```
+
+3. **Edit** — only after the gate allows; the smallest diff that satisfies the scope.
+
+**Confidence gate:** < 5 → stop and ask for the missing input; 5–7 → list unknowns and proceed only after human approval; ≥ 8 → proceed and still cite evidence.
+
+Never invent file paths, module names, enum values, repeated UI strings, env var names, credentials, user-facing messages, labels, or API routes. Ask the human or explore the repo or the live app. If `.env.example`, `test-data/`, the ticket, or the live app does not confirm a value, it is an unknown, not a placeholder.
