@@ -6,6 +6,11 @@
         "command": ".cursor/hooks/guard-test-assertions.sh",
         "matcher": "Write",
         "failClosed": true
+      },
+      {
+        "command": ".cursor/hooks/guard-constitution.sh",
+        "matcher": "Write",
+        "failClosed": true
       }
     ]
   }
