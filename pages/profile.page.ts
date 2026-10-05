@@ -3,6 +3,12 @@ import { DeleteAccountForm } from './components/delete-account.component';
 import { HeaderComponent } from './components/header.component';
 import { AppRoute } from '../test-data/routes';
 
+/** Snapshot of the Your details form fields. */
+export type ProfileDetailsSnapshot = {
+  displayName: string;
+  phone: string;
+};
+
 export class ProfilePage {
   readonly header: HeaderComponent;
   readonly deleteAccountForm: DeleteAccountForm;
@@ -54,6 +60,48 @@ export class ProfilePage {
   /** Fills the optional phone field without saving. */
   async fillPhone(phone: string): Promise<void> {
     await this.phone.fill(phone);
+  }
+
+  /**
+   * Reads the current Your details field values.
+   * @returns Display name and phone as shown in the form.
+   */
+  async readMyDetails(): Promise<ProfileDetailsSnapshot> {
+    return {
+      displayName: await this.displayName.inputValue(),
+      phone: await this.phone.inputValue(),
+    };
+  }
+
+  /** Submits Your details with Save my details. */
+  async saveMyDetails(): Promise<void> {
+    await this.saveMyDetailsButton.click();
+  }
+
+  /**
+   * Fills Your details and saves, waiting for PATCH /api/v1/me to succeed.
+   * @param displayName - Value for Display name (how your circle sees you).
+   * @param phone - Value for Phone (optional); empty string clears it.
+   */
+  async writeAndSaveMyDetails(displayName: string, phone: string): Promise<void> {
+    await this.fillDisplayName(displayName);
+    await this.fillPhone(phone);
+    const saved = this.page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/v1/me') &&
+        response.request().method() === 'PATCH' &&
+        response.ok(),
+    );
+    await this.saveMyDetails();
+    await saved;
+  }
+
+  /**
+   * Restores Your details to a prior snapshot (display name + phone) and saves.
+   * @param details - Snapshot from {@link readMyDetails}.
+   */
+  async restoreMyDetails(details: ProfileDetailsSnapshot): Promise<void> {
+    await this.writeAndSaveMyDetails(details.displayName, details.phone);
   }
 
   /** Opens My Availability (navigates to Availability). */
