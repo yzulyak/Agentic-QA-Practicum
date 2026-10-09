@@ -39,7 +39,7 @@ Non-negotiables for every task. Details and examples: playwright-conventions.mdc
 
 ## Index
 
-Skills (`.agents/skills/`) and Agents (`.cursor/agents/`): updated as each artifact is added.
+Skills (`.cursor/skills/`: api-cleanup, ci-failure-triage, eval-report, exploratory-charter, explore-and-generate, jira-bug-reporter, jira-ticket-analyzer, pom-conventions, self-heal, test-data-reset) and Agents (`.cursor/agents/`): updated as each artifact is added.
 
 ## Agent governance
 
