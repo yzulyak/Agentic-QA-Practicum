@@ -39,7 +39,11 @@ Non-negotiables for every task. Details and examples: playwright-conventions.mdc
 
 ## Index
 
-Skills (`.cursor/skills/`: api-cleanup, ci-failure-triage, eval-report, exploratory-charter, explore-and-generate, jira-bug-reporter, jira-ticket-analyzer, pom-conventions, self-heal, test-data-reset) and Agents (`.cursor/agents/`): updated as each artifact is added.
+**Skills** (`.cursor/skills/`):
+api-cleanup (test data teardown), ci-failure-triage (classify red builds), eval-report (suite reliability metrics), exploratory-charter (session charter format), explore-and-generate (ticket-less coverage discovery), jira-bug-reporter (file Jira bugs), jira-ticket-analyzer (AC to Gherkin), pom-conventions (page object patterns), self-heal (repair locator drift), test-data-reset (wipe leftover records).
+
+**Agents** (`.cursor/agents/`):
+bug-reporter (file confirmed bugs), test-writer (author Playwright specs), triage (classify CI failures).
 
 ## Agent governance
 
