@@ -1,0 +1,53 @@
+name: Playwright Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ github.event_name == 'push' && 'sanity' || github.event_name == 'pull_request' && 'smoke' || 'regression' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && 60 || 30 }}
+    env:
+      APP_URL: ${{ secrets.APP_URL }}
+      APP_USER_EMAIL: ${{ secrets.APP_USER_EMAIL }}
+      APP_USER_PASSWORD: ${{ secrets.APP_USER_PASSWORD }}
+      APP_ALT_USER_EMAIL: ${{ secrets.APP_ALT_USER_EMAIL }}
+      APP_ALT_USER_PASSWORD: ${{ secrets.APP_ALT_USER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Select slice
+        id: slice
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "command=npm run test:sanity" >> "$GITHUB_OUTPUT"
+            echo "name=sanity" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "command=npm run test:smoke" >> "$GITHUB_OUTPUT"
+            echo "name=smoke" >> "$GITHUB_OUTPUT"
+          else
+            echo "command=npx playwright test" >> "$GITHUB_OUTPUT"
+            echo "name=regression" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Playwright tests
+        run: ${{ steps.slice.outputs.command }}
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ steps.slice.outputs.name }}
+          path: playwright-report/
+          retention-days: 30
