@@ -20,8 +20,9 @@ Drive a QA task to done by delegating. The only work you do yourself is read the
 ## Guardrails
 
 - A human approves every merge and every bug before it is filed.
-- Stop and escalate if a run fails identically twice or triage can't classify.
+- Stop and escalate if a run fails identically twice or the scorer stays inconclusive.
 - Never merge or close a ticket or PR without explicit approval.
+- Actions on red runs are gated by `scripts/score-evidence.ts` (hooks re-run it with `--verify-only` on `.test-artifacts/evidence/current.json`). Do not trust a saved decision file or a chat label.
 
 ## Loop guard
 
@@ -39,9 +40,9 @@ Atlassian MCP (Jira and Confluence), GitHub MCP or `gh`, the terminal (`npx play
 | --- | --- |
 | `jira-ticket-analyzer` | Analyze a ticket into a plan |
 | `explore-and-generate` | Ticket-less discovery |
-| `ci-failure-triage` | Via `triage` on red runs |
-| `self-heal` | Drift only — never real bugs |
-| `jira-bug-reporter` | Via `bug-reporter` |
+| `ci-failure-triage` | Via `triage` on red runs — writes evidence and runs the scorer |
+| `self-heal` | Scorer `act` + `drift` (or escalate + approval file) |
+| `jira-bug-reporter` | Scorer `act` + `bug` (or escalate + approval file) |
 | `api-cleanup` | Tests that create data |
 | `pom-conventions` | Specs and POM work |
 | `eval-report` | Mandatory before Done when triggered |
@@ -54,13 +55,14 @@ Atlassian MCP (Jira and Confluence), GitHub MCP or `gh`, the terminal (`npx play
 
 ## Heal on red
 
-Always triage first.
+Always triage first (evidence file + scorer). Route on the **scorer decision**, not a chat label:
 
-| Classification | Action |
+| Scorer decision | Action |
 | --- | --- |
-| Real app bug | `bug-reporter` — never heal |
-| Drift | `self-heal`: re-discover via accessibility snapshot, patch the POM only, re-run green with assertions unchanged, open repair PR `heal/<desc>`, never merge |
-| Ambiguous | Stop and escalate |
+| `act` + `drift` | `self-heal`: re-discover via accessibility snapshot, patch the POM only, re-run green with assertions unchanged, open repair PR `heal/<desc>`, never merge |
+| `act` + `bug` | `bug-reporter` draft only — never heal; file only after human approval |
+| `escalate` | Show the evidence table (`verified` / `missing` / `contradictions`, score, rule) and **wait** for a human to create `.test-artifacts/approvals/<decisionId>.json` by hand; then re-run the scorer path and continue |
+| `inconclusive` | **Stop** — list what is missing or contradicting (a re-run that passed is flaky / inconclusive, not drift) |
 
 **Hard stops:** never touch an assertion (guard hooks enforce it); stop if green needs an assertion change or the same locator error persists.
 
@@ -80,4 +82,4 @@ Apply `eval-report` when any trigger fired this session; commit the refreshed `e
 | --- | --- |
 | Single-ticket | Plan saved, spec green (or filed bug / repair PR awaiting approval), eval handled |
 | Backlog | One PR open with ticket linked; `tests-generated` applied only if green path completed; eval handled |
-| Red-run heal | Triage classification acted on; drift healed with repair PR, or bug draft awaiting approval; eval handled |
+| Red-run heal | Scorer decision acted on; drift healed with repair PR, or bug draft awaiting approval; eval handled |

@@ -33,7 +33,7 @@ Non-negotiables for every task. Details and examples: playwright-conventions.mdc
 | Hardcoded secrets | Use process.env; auth files are git-ignored |
 | The `any` type | Defeats TypeScript safety in fixtures and POMs |
 | Weakened assertions | No deleting, softening, or commenting out expect() to go green |
-| Healing a real bug | Triage first; drift → self-heal; product defect → bug-reporter |
+| Healing a real bug | Scorer first; act+drift → self-heal; act+bug → bug-reporter |
 | Tags on describe | Tags belong on individual test() blocks only |
 | Inheritance (BasePage) | No LoginPage extends BasePage; compose HeaderComponent instead |
 
@@ -55,13 +55,13 @@ Behavioral only, not hook-enforced. Applies to every non-trivial task (new spec,
    ```
    ## Proposal
    - Scope: files, flows, ticket — what will change and what will not
-   - Confidence: 1–10
+   - Self-assessment (1–10, not a gate)
    - Rationale: why this approach; evidence consulted
    - Unknowns: gaps, assumptions, or "none"
    ```
 
 3. **Edit** — only after the gate allows; the smallest diff that satisfies the scope.
 
-**Confidence gate:** < 5 → stop and ask for the missing input; 5–7 → list unknowns and proceed only after human approval; ≥ 8 → proceed and still cite evidence.
+**Actions on red runs are gated by scripts/score-evidence.ts; the self-assessment gates nothing.**
 
 Never invent file paths, module names, enum values, repeated UI strings, env var names, credentials, user-facing messages, labels, or API routes. Ask the human or explore the repo or the live app. If `.env.example`, `test-data/`, the ticket, or the live app does not confirm a value, it is an unknown, not a placeholder.

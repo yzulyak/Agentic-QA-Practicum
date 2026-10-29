@@ -1,0 +1,57 @@
+{
+  "test": {
+    "file": "tests/example.spec.ts",
+    "title": "greeting shows family name"
+  },
+  "items": [
+    {
+      "id": "R1",
+      "kind": "failure",
+      "artifact": "artifacts/failure.txt",
+      "line": 1,
+      "excerpt": "expect(locator).toBeVisible()"
+    },
+    {
+      "id": "R2",
+      "kind": "test_location",
+      "artifact": "tests/example.spec.ts",
+      "line": 3,
+      "excerpt": "greeting shows family name"
+    },
+    {
+      "id": "R3",
+      "kind": "pom_location",
+      "artifact": "pages/example.page.ts",
+      "line": 6,
+      "excerpt": "getByRole('heading'"
+    },
+    {
+      "id": "R4",
+      "kind": "rerun",
+      "artifact": "artifacts/rerun-note.txt",
+      "line": 2,
+      "excerpt": "expect(locator).toBeVisible()"
+    },
+    {
+      "id": "N",
+      "kind": "oracle_neutral",
+      "artifact": "artifacts/neutral.txt",
+      "line": 1,
+      "excerpt": "Oracle-neutral observation"
+    },
+    {
+      "id": "D2",
+      "kind": "pom_changed",
+      "artifact": "artifacts/pom-diff.txt",
+      "line": 2,
+      "excerpt": "getByRole('heading'"
+    },
+    {
+      "id": "D3",
+      "kind": "locator_error",
+      "artifact": "artifacts/locator.txt",
+      "line": 1,
+      "excerpt": "strict mode violation"
+    }
+  ]
+}

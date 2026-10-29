@@ -1,0 +1,2 @@
+Error: expect(locator).toBeVisible() failed
+    at tests/example.spec.ts:4:47

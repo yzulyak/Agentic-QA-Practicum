@@ -1,0 +1,20 @@
+{
+  "decisionId": "fbe8f178d951",
+  "decision": "act",
+  "side": "bug",
+  "score": 60,
+  "oracle": true,
+  "verified": [
+    "R1",
+    "R2",
+    "R4",
+    "B1",
+    "B3"
+  ],
+  "missing": [],
+  "contradictions": [],
+  "rule": 6,
+  "allowedActions": [
+    "bug-reporter"
+  ]
+}

@@ -1,0 +1,1 @@
+Oracle-neutral observation: network idle after navigation

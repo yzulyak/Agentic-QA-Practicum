@@ -1,0 +1,25 @@
+{
+  "suites": [
+    {
+      "specs": [
+        {
+          "title": "greeting shows family name",
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "failed",
+                  "errors": [
+                    {
+                      "message": "Error: expect(locator).toBeVisible() failed\n    at tests/example.spec.ts:4:47"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

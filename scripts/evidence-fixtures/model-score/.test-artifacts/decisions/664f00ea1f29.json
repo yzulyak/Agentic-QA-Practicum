@@ -1,0 +1,14 @@
+{
+  "decisionId": "664f00ea1f29",
+  "decision": "inconclusive",
+  "side": null,
+  "score": 0,
+  "oracle": false,
+  "verified": [],
+  "missing": [],
+  "contradictions": [
+    "forbidden field: confidence"
+  ],
+  "rule": 1,
+  "allowedActions": []
+}

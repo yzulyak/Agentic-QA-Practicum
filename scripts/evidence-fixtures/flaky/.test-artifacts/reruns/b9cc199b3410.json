@@ -1,0 +1,21 @@
+{
+  "suites": [
+    {
+      "specs": [
+        {
+          "title": "greeting shows family name",
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed",
+                  "errors": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
