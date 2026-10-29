@@ -1,0 +1,20 @@
+{
+  "decisionId": "226946967085",
+  "decision": "inconclusive",
+  "side": null,
+  "score": 0,
+  "oracle": false,
+  "verified": [
+    "R1",
+    "R2",
+    "R3",
+    "D1",
+    "D4"
+  ],
+  "missing": [
+    "R4"
+  ],
+  "contradictions": [],
+  "rule": 2,
+  "allowedActions": []
+}

@@ -1,0 +1,21 @@
+{
+  "decisionId": "b6a778b89d51",
+  "decision": "act",
+  "side": "drift",
+  "score": 60,
+  "oracle": true,
+  "verified": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "D1",
+    "D2"
+  ],
+  "missing": [],
+  "contradictions": [],
+  "rule": 6,
+  "allowedActions": [
+    "self-heal"
+  ]
+}

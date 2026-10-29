@@ -1,0 +1,22 @@
+{
+  "decisionId": "85a4e6fb4b63",
+  "decision": "escalate",
+  "side": "drift",
+  "score": 35,
+  "oracle": false,
+  "verified": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "N",
+    "D2",
+    "D3"
+  ],
+  "missing": [],
+  "contradictions": [],
+  "rule": 7,
+  "allowedActions": [
+    "escalate"
+  ]
+}
