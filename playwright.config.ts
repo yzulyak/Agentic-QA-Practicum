@@ -33,5 +33,11 @@ export default defineConfig({
       },
       dependencies: ['setup'],
     },
+    {
+      name: 'api',
+      testDir: './api',
+      testMatch: '**/*.api.spec.ts',
+      dependencies: ['setup'],
+    },
   ],
 });

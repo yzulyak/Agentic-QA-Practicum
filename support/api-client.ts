@@ -40,7 +40,10 @@ function storageStateForOwner(owner: RecordOwner): string {
   return owner === 'main' ? AUTH_FILE : ALT_AUTH_FILE;
 }
 
-async function createFamilyRequestContext(owner: RecordOwner): Promise<APIRequestContext> {
+/**
+ * Authenticated APIRequestContext for a family owner (Bearer from storageState bt_token).
+ */
+export async function createApiContextForOwner(owner: RecordOwner): Promise<APIRequestContext> {
   const baseURL = process.env.APP_URL;
   if (!baseURL) {
     throw new Error('APP_URL is not set');
@@ -62,7 +65,7 @@ async function createFamilyRequestContext(owner: RecordOwner): Promise<APIReques
  * Deletes a child via DELETE /api/v1/children/:id using the given family's auth.
  */
 export async function deleteChild(owner: RecordOwner, id: string): Promise<DeleteResult> {
-  const ctx = await createFamilyRequestContext(owner);
+  const ctx = await createApiContextForOwner(owner);
   try {
     const response = await ctx.delete(`/api/v1/children/${id}`);
     const status = response.status();
