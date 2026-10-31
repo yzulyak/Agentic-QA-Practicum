@@ -3,7 +3,7 @@ description: Always-on Playwright constitution — non-negotiables, preferences,
 alwaysApply: true
 ---
 
-Non-negotiables for every task. Details and examples: playwright-conventions.mdc (tests) and qa-orchestrator.mdc (ticket/CI workflow) — both added later.
+Non-negotiables for every task. Details and examples: playwright-conventions.mdc (UI tests), api-conventions.mdc (API tests), and qa-orchestrator.mdc (ticket/CI workflow).
 
 ## MUST
 
@@ -39,11 +39,14 @@ Non-negotiables for every task. Details and examples: playwright-conventions.mdc
 
 ## Index
 
+**Rules** (`.cursor/rules/`):
+playwright-conventions (UI tests), api-conventions (API tests under `api/`), qa-orchestrator (ticket/CI workflow), constitution (this file).
+
 **Skills** (`.cursor/skills/`):
-api-cleanup (test data teardown), ci-failure-triage (classify red builds), eval-report (suite reliability metrics), exploratory-charter (session charter format), explore-and-generate (ticket-less coverage discovery), jira-bug-reporter (file Jira bugs), jira-ticket-analyzer (AC to Gherkin), pom-conventions (page object patterns), self-heal (repair locator drift), test-data-reset (wipe leftover records).
+api-cleanup (test data teardown), api-contract-tests (API specs from spec or catalog), api-discovery (map undocumented API into catalog), ci-failure-triage (classify red builds), eval-report (suite reliability metrics), exploratory-charter (session charter format), explore-and-generate (ticket-less coverage discovery), jira-bug-reporter (file Jira bugs), jira-ticket-analyzer (AC to Gherkin), pom-conventions (page object patterns), self-heal (repair locator drift), test-data-reset (wipe leftover records).
 
 **Agents** (`.cursor/agents/`):
-bug-reporter (file confirmed bugs), test-writer (author Playwright specs), triage (classify CI failures).
+api-test-writer (author Playwright API specs under `api/`), bug-reporter (file confirmed bugs), test-writer (author Playwright UI specs), triage (classify CI failures).
 
 ## Agent governance
 

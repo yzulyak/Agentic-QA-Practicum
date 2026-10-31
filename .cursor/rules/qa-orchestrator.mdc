@@ -32,7 +32,7 @@ Drive a QA task to done by delegating. The only work you do yourself is read the
 
 ## Tools
 
-Atlassian MCP (Jira and Confluence), GitHub MCP or `gh`, the terminal (`npx playwright test`), the `test-writer` / `triage` / `bug-reporter` subagents.
+Atlassian MCP (Jira and Confluence), GitHub MCP or `gh`, the terminal (`npx playwright test`), the `test-writer` / `api-test-writer` / `triage` / `bug-reporter` subagents.
 
 ## Skills
 
@@ -41,36 +41,44 @@ Atlassian MCP (Jira and Confluence), GitHub MCP or `gh`, the terminal (`npx play
 | `jira-ticket-analyzer` | Analyze a ticket into a plan |
 | `explore-and-generate` | Ticket-less discovery |
 | `ci-failure-triage` | Via `triage` on red runs — writes evidence and runs the scorer |
-| `self-heal` | Scorer `act` + `drift` (or escalate + approval file) |
+| `self-heal` | Scorer `act` + `drift` (or escalate + approval file); UI/POM only — never for API failures |
 | `jira-bug-reporter` | Scorer `act` + `bug` (or escalate + approval file) |
+| `api-discovery` | Undocumented API — map traffic into `api/CATALOG.md` |
+| `api-contract-tests` | Plan/write API specs from a documented spec or the catalog |
 | `api-cleanup` | Tests that create data |
 | `pom-conventions` | Specs and POM work |
 | `eval-report` | Mandatory before Done when triggered |
 
 ## Routing
 
-**Ticket present:** analyze → plan saved to `features/<key>.feature.md` → `test-writer` → run → if red, Heal on red.
+**Ticket present:** analyze → plan saved to `features/<key>.feature.md` → route by acceptance criteria → run → if red, Heal on red.
 
-**No ticket:** `explore-and-generate` → plan saved to `features/explore-<slug>.feature.md` → `test-writer`.
+| Plan content | Delegate |
+| --- | --- |
+| API endpoint only (no page in AC) | `api-contract-tests` from the spec or the catalog → `api-test-writer` → run the `api` project |
+| Page flow | `test-writer` → run as before |
+| Both | API first (`api-test-writer`), then page (`test-writer`) |
+
+**No ticket:** `explore-and-generate` → plan saved to `features/explore-<slug>.feature.md` → same routing table (API / page / both).
 
 ## Heal on red
 
-Always triage first (evidence file + scorer). Route on the **scorer decision**, not a chat label:
+Always triage first (evidence file + scorer). P36's evidence score applies to API failures too. Route on the **scorer decision**, not a chat label:
 
 | Scorer decision | Action |
 | --- | --- |
-| `act` + `drift` | `self-heal`: re-discover via accessibility snapshot, patch the POM only, re-run green with assertions unchanged, open repair PR `heal/<desc>`, never merge |
+| `act` + `drift` | `self-heal`: re-discover via accessibility snapshot, patch the POM only, re-run green with assertions unchanged, open repair PR `heal/<desc>`, never merge. **API failures have no page object** — the drift side cannot reach `act`; a changed status or field is triage evidence for a contract change or a bug, never `self-heal` |
 | `act` + `bug` | `bug-reporter` draft only — never heal; file only after human approval |
 | `escalate` | Show the evidence table (`verified` / `missing` / `contradictions`, score, rule) and **wait** for a human to create `.test-artifacts/approvals/<decisionId>.json` by hand; then re-run the scorer path and continue |
 | `inconclusive` | **Stop** — list what is missing or contradicting (a re-run that passed is flaky / inconclusive, not drift) |
 
-**Hard stops:** never touch an assertion (guard hooks enforce it); stop if green needs an assertion change or the same locator error persists.
+**Hard stops:** never touch an assertion (guard hooks enforce it); stop if green needs an assertion change or the same locator error persists; never self-heal an API failure.
 
 ## Backlog mode
 
 The outer runner (a Cursor Automation, a headless agent `-p`, or a local batch) queries Jira project `JIRA_PROJECT_KEY` (`AQPBT`) for status **In QA** without the label `tests-generated` and passes **at most one** ticket per run. Empty queue → no run.
 
-Per ticket: analyze → `test-writer` → run → heal on red.
+Per ticket: analyze → route (API / page / both, API first) → run → heal on red.
 
 **Output:** one PR per ticket, ticket linked in the PR body, label `tests-generated` on the ticket. Never merge, transition, or close. On a repeated identical failure: leave the PR open, do not add the label.
 
