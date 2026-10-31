@@ -1,0 +1,142 @@
+---
+description: Conventions for API tests in api/ — sources of truth, safe auth, a success and an intentional error test per endpoint, evidence labels.
+globs: api/**
+alwaysApply: false
+---
+
+# API conventions
+
+How this repo writes Playwright API tests under `api/`. Characterization tests pin observed catalog behavior; contract tests pin an approved specification.
+
+---
+
+## 1. Sources of truth
+
+A specification or approved documentation is documented. A row in `api/CATALOG.md` is observed. Anything else is an assumption and goes on the catalog's "Not yet tested" list. Tests from observed rows are characterization tests; tests from a spec are contract tests.
+
+```typescript
+// ✅ Good — characterization from an executed catalog row (GET /api/v1/me → 200, parent/family/isAdmin)
+test('GET /api/v1/me returns catalog shape @api', async ({ mainApi }) => {
+  const response = await mainApi.get('/api/v1/me');
+  expect(response.status()).toBe(200);
+  // …assert top-level fields recorded in CATALOG.md
+});
+
+// ❌ Bad — treat "inspected only" / unknown as a contract (PATCH /api/v1/me has no executed status or body)
+test('PATCH /api/v1/me updates profile @api', async ({ mainApi }) => {
+  const response = await mainApi.patch('/api/v1/me', { data: { displayName: 'New' } });
+  expect(response.status()).toBe(200); // guessed — not in catalog evidence
+});
+```
+
+**Why:** Catalog rows with `executed` evidence are today's observed behavior; inventing statuses for `inspected only` or "Not yet tested" items is not a source of truth.
+
+---
+
+## 2. Requests
+
+The base URL comes from Playwright's `baseURL` (via `APP_URL` in context setup). Authenticated contexts only from `api/fixtures.ts`, which reuses `support/api-client.ts`. Never a token, URL, or id literal in a spec.
+
+```typescript
+// ✅ Good — fixture context; relative path only
+test('GET /api/v1/connections returns a JSON array @api', async ({ mainApi }) => {
+  const response = await mainApi.get('/api/v1/connections');
+  expect(response.status()).toBe(200);
+});
+
+// ❌ Bad — token, absolute URL, or id literal in the spec
+test('GET /api/v1/me with pasted JWT @api', async ({ request }) => {
+  const response = await request.get('https://app.example/api/v1/me', {
+    headers: { Authorization: 'Bearer eyJhbGciOi…' },
+  });
+});
+```
+
+**Why:** `mainApi` / `altApi` / `unauthApi` centralize auth and base URL so secrets and env stay out of specs.
+
+---
+
+## 3. Two tests per endpoint
+
+A success test, and an intentional error test that changes exactly one thing (drop the token, remove a required field, send an empty body). Assert the status and the fields you actually expect, and that nothing sensitive comes back.
+
+```typescript
+// ✅ Good — success + one change (drop token); status from catalog constants
+test('GET /api/v1/me returns catalog shape @api', async ({ mainApi }) => { /* … */ });
+
+test('GET /api/v1/me without token returns catalog unauth status @api', async ({
+  unauthApi,
+}) => {
+  const response = await unauthApi.get('/api/v1/me');
+  expect(response.status()).toBe(CATALOG_UNAUTH_STATUS);
+});
+
+// ❌ Bad — only the happy path, or several mutations in one error case
+test('GET /api/v1/availability works @api', async ({ mainApi }) => {
+  const response = await mainApi.get('/api/v1/availability');
+  expect(response.status()).toBe(200);
+});
+// (no unauth twin; or one test that strips the token *and* sends a bogus query)
+```
+
+**Why:** One controlled failure mode shows the API rejects the right way without mixing causes.
+
+---
+
+## 4. Writes
+
+Only when the undo is documented or observed; `trackRecord` right after the create, so cleanup removes it even if the test fails.
+
+```typescript
+// ✅ Good — POST /api/v1/children has DELETE undo in the catalog; track immediately after id is known
+const createResponse = await mainApi.post('/api/v1/children', { data: payload });
+// …assert 201 and shape…
+const created = createdBody as CreatedChild;
+trackRecord({ type: 'child', id: created.id, owner: 'main' });
+
+// ❌ Bad — write without observed undo, or create then assert before tracking
+await mainApi.patch('/api/v1/me', { data: payload }); // catalog: not safe / not executed
+const created = await (await mainApi.post('/api/v1/children', { data: payload })).json();
+expect(created.firstName).toBe(payload.firstName); // can fail before trackRecord
+trackRecord({ type: 'child', id: created.id, owner: 'main' });
+```
+
+**Why:** Catalog marks children create as safe because DELETE undoes it; tracking before further asserts keeps orphaned rows from surviving a mid-test failure.
+
+---
+
+## 5. Tags
+
+Exactly one tag per test — `@api`.
+
+```typescript
+// ✅ Good
+test('GET /api/v1/events returns a JSON array @api', async ({ mainApi }) => { /* … */ });
+
+// ❌ Bad — multiple tags, or tag on describe
+test.describe('events @api', () => {
+  test('list @smoke @api', async ({ mainApi }) => { /* … */ });
+});
+```
+
+**Why:** Suite filters and constitution require a single tag on each `test()`, never on `describe()`.
+
+---
+
+## 6. Evidence
+
+Label every claim `executed`, `inspected only`, or `not yet tested`. A status or body copied from a spec, a chat, or an agent's prediction is not evidence.
+
+```markdown
+<!-- ✅ Good — api/CATALOG.md -->
+| GET | `/api/v1/me` | … | 200; … Without token: **401** | … | yes | executed |
+| PATCH | `/api/v1/me` | … | — | unknown | unknown | no | inspected only |
+
+### Not yet tested
+- `PATCH /api/v1/me` request body and response
+
+<!-- ❌ Bad — assert a predicted body as if observed -->
+expect(await response.json()).toEqual({ error: 'Unauthorized' }); // never executed / not in catalog
+```
+
+**Why:** Only Playwright MCP (or equivalent) runs and documented rows count; predictions are assumptions for the "Not yet tested" list.
