@@ -7,7 +7,9 @@ type CreatedChild = {
 };
 
 type MeBody = {
+  parent?: { id?: string };
   family: {
+    id?: string;
     children: Array<{ id: string }>;
   } | null;
 };
@@ -68,4 +70,33 @@ test('No token cannot delete family A child', { tag: '@api' }, async ({ mainApi,
 
   const mainIds = await familyChildIds(mainApi);
   expect(mainIds).toContain(childId);
+});
+
+test('Family B /me does not include family A markers', { tag: '@api' }, async ({
+  mainApi,
+  altApi,
+}) => {
+  const childId = await createTrackedChild(mainApi);
+
+  const baselineResponse = await mainApi.get('/api/v1/me');
+  expect(baselineResponse.status()).toBe(200);
+  const baselineRaw = await baselineResponse.text();
+  const baselineMe = JSON.parse(baselineRaw) as MeBody;
+  expect(baselineMe.family).not.toBeNull();
+  expect(baselineMe.family!.children.some((child) => child.id === childId)).toBe(true);
+
+  const markers = [childId];
+  if (baselineMe.family?.id) {
+    markers.push(baselineMe.family.id);
+  }
+  if (baselineMe.parent?.id) {
+    markers.push(baselineMe.parent.id);
+  }
+
+  const altMe = await altApi.get('/api/v1/me');
+  expect(altMe.status()).toBe(200);
+  const altMeRaw = await altMe.text();
+  for (const marker of markers) {
+    expect(altMeRaw.includes(marker)).toBe(false);
+  }
 });
