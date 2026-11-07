@@ -76,6 +76,52 @@ export class DashboardPage {
     return card.getByText(count, { exact: true });
   }
 
+  /** Family card area that lists children under the family name. */
+  familyBlock(familyName: string): Locator {
+    return this.page.getByText(familyName, { exact: true }).locator('..').locator('..');
+  }
+
+  /** Numeric My Kids stat as a locator. */
+  myKidsCountLocator(): Locator {
+    return this.myKidsCard.getByText(/^\d+$/, { exact: true });
+  }
+
+  /** Reads the My Kids summary count. */
+  async getMyKidsCount(): Promise<number> {
+    const text = await this.myKidsCountLocator().innerText();
+    return Number.parseInt(text, 10);
+  }
+
+  /**
+   * One child row in the family block, located by summary line text.
+   * @param familyName - Family name from GET /api/v1/me.
+   * @param summaryLine - Child summary (e.g. `Mia, 7 · Girl` or `Mia, 7`).
+   */
+  childRowBySummary(familyName: string, summaryLine: string): Locator {
+    return this.familyBlock(familyName)
+      .getByRole('button', { name: 'remove' })
+      .locator('..')
+      .filter({ hasText: summaryLine });
+  }
+
+  /**
+   * Summary line text for a child row.
+   * @param familyName - Family name from GET /api/v1/me.
+   * @param summaryLine - Exact child summary line.
+   */
+  childSummaryLocator(familyName: string, summaryLine: string): Locator {
+    return this.childRowBySummary(familyName, summaryLine).getByText(summaryLine, { exact: true });
+  }
+
+  /**
+   * Removes a child via the row's remove control.
+   * @param familyName - Family name from GET /api/v1/me.
+   * @param summaryLine - Exact child summary line.
+   */
+  async removeChild(familyName: string, summaryLine: string): Promise<void> {
+    await this.childRowBySummary(familyName, summaryLine).getByRole('button', { name: 'remove' }).click();
+  }
+
   /** Clicks the My Kids summary card. */
   async clickMyKidsCard(): Promise<void> {
     await this.myKidsCard.click();
